@@ -1,7 +1,7 @@
 /*
 Kevin Martinsen
 CSCI 1175 - Industry Projects
-01/19/22
+01/20/22
 
 Exercise 28_7 - implement getACycle() method  
  */
@@ -213,7 +213,7 @@ public class UnweightedGraph<V> implements Graph<V> {
     return new SearchTree(v, parent, searchOrder);
   }
 
-  /** Returns the first cycle found */
+  /** Returns the first cycle found using DFS in an undirected graph*/
   public List<Integer> getACycle() {
     boolean[] isVisited = new boolean[vertices.size()];
     Stack<Integer> cycleStack = new Stack<Integer>();
@@ -222,6 +222,7 @@ public class UnweightedGraph<V> implements Graph<V> {
 
     boolean allVisited = false;
 
+    // account for disjointed graphs
     while (!allVisited && cyclePath == null) {
       allVisited = true;
       for (int i = 0; i < isVisited.length; i ++) {
@@ -236,13 +237,16 @@ public class UnweightedGraph<V> implements Graph<V> {
     return cyclePath;
   }
 
-  /** helper function to getACycle() */
+  /** helper method to getACycle() */
   private List<Integer> dfsCycle(final int x, boolean[] isVisited, Stack<Integer> cycleStack) {
+    int parent;
+    if (cycleStack.empty()) parent = -1;
+    else parent = cycleStack.peek();
     isVisited[x] = true;
     cycleStack.push(x);
     for (Edge e: neighbors.get(x)) { // e is the edge connecting x to v
       if (!isVisited[e.v]) return dfsCycle(e.v, isVisited, cycleStack);
-      else if (cycleStack.contains(e.v)) return cycleStack;
+      else if (cycleStack.contains(e.v) && e.v != parent) return cycleStack; // e.v != parent assumes undirected graph
     }
     // if all the neighbors are visited and not in the cycle stack return null
     cycleStack.pop();
